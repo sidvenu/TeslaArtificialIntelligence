@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/tesla_background"
+    tools:context="io.github.sidvenu.teslaai.UIActivity">
+
+    <ImageButton
+        android:id="@+id/voice_control"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:background="@android:color/transparent"
+        android:clickable="true"
+        android:contentDescription="@string/speak_button"
+        android:focusable="true"
+        android:onClick="toggleVoiceControl"
+        android:scaleType="centerInside" />
+
+    <ImageView
+        android:id="@+id/teslaLogo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:contentDescription="@string/tesla_logo"
+        android:scaleType="fitCenter"
+        android:src="@drawable/tesla_logo" />
+
+    <ImageButton
+        android:id="@+id/speech_button"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:background="@android:color/transparent"
+        android:clickable="true"
+        android:contentDescription="@string/speak_button"
+        android:focusable="true"
+        android:scaleType="centerInside"
+        android:src="@drawable/tesla_mic" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:max="100"
+        android:visibility="invisible" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/speech_button"
+        android:layout_below="@+id/voice_control"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:orientation="vertical">
+
+        <WebView
+            android:id="@+id/userInputWebView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <WebView
+            android:id="@+id/botResponseWebView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+</RelativeLayout>

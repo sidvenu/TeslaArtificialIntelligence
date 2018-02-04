@@ -24,7 +24,7 @@ final class NetworkParseResponse {
         try {
             talkWord = talkWord.replace(" ", "%20").replace("!", "")
                     .replace("'", "%27");
-            String urlBuild = "http://api.brainshop.ai/get?bid=1054&key="+BuildConfig.BrainShopAPIKey+"&uid="
+            String urlBuild = "http://api.brainshop.ai/get?bid=1054&key=" + BuildConfig.BrainShopAPIKey + "&uid="
                     + Long.toString(uid) + "&msg=" + talkWord;
             url = new URL(urlBuild);
             publishProgress(5);
@@ -51,6 +51,8 @@ final class NetworkParseResponse {
             String jsonData = getStringFromInputStream(urlConnection.getInputStream());
             publishProgress(75);
             botResponse = parseBotResponse(jsonData);
+            if (botResponse != null && botResponse.contains("<tip>"))
+                botResponse = botResponse.substring(botResponse.lastIndexOf("tip>") + 4);
             publishProgress(100);
         } catch (IOException e) {
             e.printStackTrace();

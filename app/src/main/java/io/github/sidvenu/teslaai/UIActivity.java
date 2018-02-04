@@ -16,6 +16,7 @@ import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebView;
@@ -40,7 +41,7 @@ public class UIActivity extends AppCompatActivity {
     SharedPreferences preferences;
     String chat = "Hey there!";
     // available for the device support, enabled for the user - if he/she wants it or not
-    boolean isTTSAvailable = false, isTTSEnabled = true;
+    boolean isTTSAvailable = false, isTTSEnabled;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +53,7 @@ public class UIActivity extends AppCompatActivity {
             public void onInit(int status) {
                 boolean isError = false;
                 if (status == TextToSpeech.SUCCESS) {
-                    int result = textToSpeech.setLanguage(Locale.US);
+                    int result = textToSpeech.setLanguage(Locale.UK);
                     if (result == TextToSpeech.LANG_MISSING_DATA
                             || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                         isError = true;
@@ -64,8 +65,9 @@ public class UIActivity extends AppCompatActivity {
                 if (isError) {
                     Toast.makeText(UIActivity.this, "TextToSpeech is not supported", Toast.LENGTH_SHORT).show();
                     ((ImageButton) findViewById(R.id.voice_control)).setImageResource(R.drawable.tesla_voice_off);
-                } else
-                    ((ImageButton) findViewById(R.id.voice_control)).setImageResource(R.drawable.tesla_voice_on);
+                } else {
+                    textToSpeech.setPitch(1.4f);
+                }
                 new NetworkAsyncTask().execute("Hey there!");
             }
         });
@@ -80,10 +82,12 @@ public class UIActivity extends AppCompatActivity {
         /* Check if the device has a preference "uid" which each user has a unique one. If the
         device does not have it, create the preference and initialize with current milli time */
         preferences = getSharedPreferences("preference", MODE_PRIVATE);
-        if (!(preferences.contains("uid"))) {
+        if (!preferences.contains("uid")) {
             long randomUID = System.currentTimeMillis();
             preferences.edit().putLong("uid", randomUID).apply();
         }
+        isTTSEnabled = preferences.getBoolean("isTTSEnabled", true);
+        setVoiceImage();
 
         /* Listen for input every time the ImageButton is clicked. If the device is not connected, then
          alert the user about it */
@@ -213,6 +217,7 @@ public class UIActivity extends AppCompatActivity {
         super.onPause();
         if (textToSpeech != null)
             textToSpeech.stop();
+        preferences.edit().putBoolean("isTTSEnabled", isTTSEnabled).apply();
     }
 
     @Override
@@ -224,16 +229,22 @@ public class UIActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
+    private void setVoiceImage() {
+        if (isTTSEnabled) {
+            Log.v("LOL", "REA1");
+            ((ImageButton) findViewById(R.id.voice_control)).setImageResource(R.drawable.tesla_voice_on);
+        } else {
+            Log.v("LOL", "REA2");
+            ((ImageButton) findViewById(R.id.voice_control)).setImageResource(R.drawable.tesla_voice_off);
+            if (textToSpeech != null && textToSpeech.isSpeaking())
+                textToSpeech.stop();
+        }
+    }
+
     public void toggleVoiceControl(View view) {
         if (isTTSAvailable) {
             isTTSEnabled = !isTTSEnabled;
-            if (isTTSEnabled) {
-                ((ImageButton) findViewById(R.id.voice_control)).setImageResource(R.drawable.tesla_voice_on);
-            } else {
-                ((ImageButton) findViewById(R.id.voice_control)).setImageResource(R.drawable.tesla_voice_off);
-                if (textToSpeech.isSpeaking())
-                    textToSpeech.stop();
-            }
+            setVoiceImage();
         }
     }
 

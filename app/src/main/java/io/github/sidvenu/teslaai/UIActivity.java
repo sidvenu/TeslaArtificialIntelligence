@@ -100,8 +100,8 @@ public class UIActivity extends AppCompatActivity {
         });
     }
 
-    private void startListening(){
-        if(textToSpeech.isSpeaking())
+    private void startListening() {
+        if (textToSpeech != null && textToSpeech.isSpeaking())
             textToSpeech.stop();
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
@@ -117,12 +117,10 @@ public class UIActivity extends AppCompatActivity {
         return net != null && net.isAvailable() && net.isConnected();
     }
 
-
     // Exit the app
     private void exit() {
         parseHTMLSetWebView(getString(R.string.exit_message), 1);
-        Handler mHandler = new Handler();
-        mHandler.postDelayed(new Runnable() {
+        new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 finish();
@@ -202,12 +200,19 @@ public class UIActivity extends AppCompatActivity {
         return temp.contains("exit") || temp.contains("bye") || temp.contains("gotta go") || temp.contains("got to go");
     }
 
-    private void speakResponse() {
+    private void speakText(String text) {
         if (isTTSAvailable && isTTSEnabled) {
             HashMap<String, String> map = new HashMap<>();
             map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "UniqueID");
-            textToSpeech.speak(NetworkParseResponse.botResponse, TextToSpeech.QUEUE_FLUSH, map);
+            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, map);
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (textToSpeech != null)
+            textToSpeech.stop();
     }
 
     @Override
@@ -223,13 +228,28 @@ public class UIActivity extends AppCompatActivity {
         if (isTTSAvailable) {
             isTTSEnabled = !isTTSEnabled;
             if (isTTSEnabled) {
-                ((ImageButton)findViewById(R.id.voice_control)).setImageResource(R.drawable.tesla_voice_on);
+                ((ImageButton) findViewById(R.id.voice_control)).setImageResource(R.drawable.tesla_voice_on);
             } else {
-                ((ImageButton)findViewById(R.id.voice_control)).setImageResource(R.drawable.tesla_voice_off);
+                ((ImageButton) findViewById(R.id.voice_control)).setImageResource(R.drawable.tesla_voice_off);
                 if (textToSpeech.isSpeaking())
                     textToSpeech.stop();
             }
         }
+    }
+
+    void openApp(final List<ApplicationInfo> matchingAppsList) {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (matchingAppsList.size() == 0)
+                    parseHTMLSetWebView(getString(R.string.app_not_found), 1);
+                else if (matchingAppsList.size() == 1) {
+                    startActivity(getPackageManager().getLaunchIntentForPackage(matchingAppsList.get(0).packageName));
+                } else {
+                    showAlertDialog((ArrayList<ApplicationInfo>) matchingAppsList);
+                }
+            }
+        }, 2000);
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -263,7 +283,6 @@ public class UIActivity extends AppCompatActivity {
                 parseHTMLSetWebView(botResponse, 1);
             }
             botResponseWebView.setVisibility(View.VISIBLE);
-            speakResponse();
         }
     }
 
@@ -281,9 +300,10 @@ public class UIActivity extends AppCompatActivity {
                 + "<body>"
                 + text
                 + "</body></html>";
-        if (n == 1)
+        if (n == 1) {
             botResponseWebView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null);
-        else
+            speakText(text);
+        } else
             userInputWebView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null);
     }
 
@@ -314,20 +334,12 @@ public class UIActivity extends AppCompatActivity {
                 //The above for loop removes the word at the end of the requested app name
                 matchingAppsList = retrieveMatchedAppInfos(appList, requestedAppName.toString());
             }
-            return matchingAppsList;
+            return requestedAppName.toString().isEmpty() ? new ArrayList<ApplicationInfo>() : matchingAppsList;
         }
 
         @Override
         protected void onPostExecute(List<ApplicationInfo> matchingAppsList) {
-            if (matchingAppsList.size() == 0)
-                parseHTMLSetWebView(getString(R.string.app_not_found), 1);
-            else if (matchingAppsList.size() == 1) {
-                parseHTMLSetWebView(getString(R.string.app_opened), 1);
-                startActivity(getPackageManager().getLaunchIntentForPackage(matchingAppsList.get(0).packageName));
-            } else {
-                parseHTMLSetWebView(getString(R.string.app_opened), 1);
-                showAlertDialog((ArrayList<ApplicationInfo>) matchingAppsList);
-            }
+            openApp(matchingAppsList);
         }
     }
 

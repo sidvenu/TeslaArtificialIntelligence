@@ -66,7 +66,7 @@ public class UIActivity extends AppCompatActivity {
                     Toast.makeText(UIActivity.this, "TextToSpeech is not supported", Toast.LENGTH_SHORT).show();
                     ((ImageButton) findViewById(R.id.voice_control)).setImageResource(R.drawable.tesla_voice_off);
                 } else {
-                    textToSpeech.setPitch(1.4f);
+                    textToSpeech.setPitch(1.1f);
                 }
                 new NetworkAsyncTask().execute("Hey there!");
             }

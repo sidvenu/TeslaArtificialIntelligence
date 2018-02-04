@@ -16,7 +16,7 @@ import java.nio.charset.Charset;
 
 final class NetworkParseResponse {
     private static URL url = null;
-    static String botResponse = null;
+    private static String botResponse = null;
     private ProgressBar progressBar = null;
 
     // Form the url for the connection to be established

@@ -32,7 +32,8 @@
         android:layout_marginRight="5dp"
         android:contentDescription="@string/tesla_logo"
         android:scaleType="fitCenter"
-        android:src="@drawable/tesla_logo" />
+        android:src="@drawable/tesla_logo"
+        android:visibility="invisible" />
 
     <ImageButton
         android:id="@+id/speech_button"
@@ -55,8 +56,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:max="100"
-        android:visibility="invisible" />
+        android:max="100" />
 
 
     <LinearLayout
@@ -78,7 +78,8 @@
             android:id="@+id/botResponseWebView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:visibility="invisible" />
     </LinearLayout>
 
 </RelativeLayout>

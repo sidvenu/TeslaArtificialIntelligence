@@ -16,15 +16,25 @@ import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -82,11 +92,13 @@ public class UIActivity extends AppCompatActivity {
         /* Check if the device has a preference "uid" which each user has a unique one. If the
         device does not have it, create the preference and initialize with current milli time */
         preferences = getSharedPreferences("preference", MODE_PRIVATE);
+        isTTSEnabled = preferences.getBoolean("isTTSEnabled", true);
         if (!preferences.contains("uid")) {
+            isTTSEnabled = false;
+            showPrivacyPolicy();
             long randomUID = System.currentTimeMillis();
             preferences.edit().putLong("uid", randomUID).apply();
         }
-        isTTSEnabled = preferences.getBoolean("isTTSEnabled", true);
         setVoiceImage();
 
         /* Listen for input every time the ImageButton is clicked. If the device is not connected, then
@@ -354,6 +366,33 @@ public class UIActivity extends AppCompatActivity {
         }
     }
 
+    private void showPrivacyPolicy() {
+        AlertDialog.Builder ad = new AlertDialog.Builder(this);
+        ad.setIcon(android.R.drawable.ic_lock_lock);
+        ad.setTitle("Privacy Policy");
+        TextView message = new TextView(this);
+        int padding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
+        message.setPadding(padding, padding, padding, padding);
+        message.setTextColor(getResources().getColor(android.R.color.black));
+        message.setText(
+                Html.fromHtml("By using the app, you acknowledge and agree to our <a href=\"" +
+                        "https://github.com/sidvenu/TeslaArtificialIntelligence/blob/master/PRIVACY_POLICY.md" +
+                        "\">privacy policy</a>")
+        );
+        message.setMovementMethod(LinkMovementMethod.getInstance());
+        ad.setView(message);
+
+        ad.setPositiveButton("Continue",
+                new android.content.DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int arg1) {
+                        toggleVoiceControl(null);
+                        speakText(NetworkParseResponse.botResponse);
+                    }
+                }
+        );
+        ad.setCancelable(false);
+        ad.show();
+    }
 
 }
 

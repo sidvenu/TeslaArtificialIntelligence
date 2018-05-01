@@ -217,7 +217,8 @@ public class UIActivity extends AppCompatActivity {
     }
 
     private void speakText(String text) {
-        if (isTTSAvailable && isTTSEnabled) {
+        if (isTTSAvailable && isTTSEnabled && !text.contains("<a href") && !text.contains("http")) {
+            Log.v("TAH", text);
             HashMap<String, String> map = new HashMap<>();
             map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "UniqueID");
             textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, map);
